@@ -1,14 +1,12 @@
 package com.Tactical.TacticalBE.service;
 
 import com.Tactical.TacticalBE.dto.ItemRequestDto;
-import com.Tactical.TacticalBE.dto.ItemResponseDto;
 import com.Tactical.TacticalBE.exception.ItemNotFoundException;
 import com.Tactical.TacticalBE.model.Item;
 import com.Tactical.TacticalBE.repository.ItemRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class ItemService {
@@ -18,25 +16,24 @@ public class ItemService {
         this.itemRepository = itemRepository;
     }
 
-    public ItemResponseDto createItem(ItemRequestDto request) {
-        Item item = new Item(request.getName(), request.getDescription());
-        return new ItemResponseDto(itemRepository.save(item));
+    public Item createItem(ItemRequestDto request) {
+        Item item = new Item(null, request.getName(), request.getDescription());
+        return itemRepository.save(item);
     }
 
-    public ItemResponseDto getItemById(String id) {
-        Item item = itemRepository.findById(id).orElseThrow(() -> new ItemNotFoundException("Item not found with ID: " + id));
-        return new ItemResponseDto(item);
+    public Item getItemById(String id) {
+        return itemRepository.findById(id).orElseThrow(() -> new ItemNotFoundException("Item not found with ID: " + id));
     }
 
-    public List<ItemResponseDto> getAllItems() {
-        return itemRepository.findAll().stream().map(ItemResponseDto::new).collect(Collectors.toList());
+    public List<Item> getAllItems() {
+        return itemRepository.findAll();
     }
 
-    public ItemResponseDto updateItem(String id, ItemRequestDto request) {
-        Item item = itemRepository.findById(id).orElseThrow(() -> new ItemNotFoundException("Item not found with ID: " + id));
-        item.setName(request.getName());
-        item.setDescription(request.getDescription());
-        return new ItemResponseDto(itemRepository.save(item));
+    public Item updateItem(String id, ItemRequestDto request) {
+        Item existingItem = itemRepository.findById(id).orElseThrow(() -> new ItemNotFoundException("Item not found with ID: " + id));
+        existingItem.setName(request.getName());
+        existingItem.setDescription(request.getDescription());
+        return itemRepository.save(existingItem);
     }
 
     public void deleteItem(String id) {
@@ -46,4 +43,3 @@ public class ItemService {
         itemRepository.deleteById(id);
     }
 }
-
